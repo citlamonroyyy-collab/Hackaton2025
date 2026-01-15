@@ -1,8 +1,29 @@
 document.getElementById("validarBtn").addEventListener("click", validarRuta);
 
+const reglasPorCliente = {
+  corporativo: {
+    duracionMax: 90,
+    paradasMax: 10,
+    pesoHorarioPico: 1,
+    nombre: "Corporativo"
+  },
+  escolar: {
+    duracionMax: 60,
+    paradasMax: 10,
+    pesoHorarioPico: 2,
+    nombre: "Escolar"
+  },
+  turistico: {
+    duracionMax: 180,
+    paradasMax: 20,
+    pesoHorarioPico: 1,
+    nombre: "Turístico"
+  }
+};
+
 function validarRuta() {
-  const duracion = Number(document.getElementById("duracion").value);
-  const paradas = Number(document.getElementById("paradas").value);
+  const duracionInput = document.getElementById("duracion").value;
+  const paradasInput = document.getElementById("paradas").value;
   const horario = document.getElementById("horario").value;
   const cliente = document.getElementById("cliente").value;
 
@@ -10,40 +31,61 @@ function validarRuta() {
   const estado = document.getElementById("estado");
   const motivos = document.getElementById("motivos");
 
-  let alertas = 0;
   motivos.innerHTML = "";
-
-  if (duracion > 90) {
-    alertas++;
-    motivos.innerHTML += "<li>Duración mayor a 90 minutos</li>";
-  }
-
-  if (paradas > 5) {
-    alertas++;
-    motivos.innerHTML += "<li>Demasiadas paradas</li>";
-  }
-
-  if (horario === "pico") {
-    alertas++;
-    motivos.innerHTML += "<li>Ruta en horario pico</li>";
-  }
-
-  if (cliente === "corporativo" && paradas > 4) {
-    alertas++;
-    motivos.innerHTML += "<li>Cliente corporativo con muchas paradas</li>";
-  }
-
   resultado.style.display = "block";
   resultado.className = "resultado";
 
-  if (alertas === 0) {
-    estado.textContent = "✅ Ruta viable";
+  if (duracionInput === "" || paradasInput === "" || !cliente || !horario) {
+    estado.textContent = " Análisis no disponible";
+    motivos.innerHTML =
+      "<li>Faltan datos obligatorios para evaluar la ruta.</li>";
+    resultado.classList.add("warning");
+    return;
+  }
+
+  const duracion = Number(duracionInput);
+  const paradas = Number(paradasInput);
+  const config = reglasPorCliente[cliente];
+
+  let alertas = 0;
+  let notaInformativa = false;
+
+  // Duración
+  if (duracion > config.duracionMax) {
+    alertas++;
+    motivos.innerHTML += `<li>El tiempo estimado supera los ${config.duracionMax} minutos recomendados.</li>`;
+  }
+
+  // Paradas
+  if (paradas > config.paradasMax) {
+    alertas++;
+    motivos.innerHTML += `<li>La ruta tiene más paradas de las recomendadas para un cliente ${config.nombre}.</li>`;
+  }
+
+  // Horario pico 
+  if (horario === "pico") {
+    if (paradas < 5) {
+
+      // La ruta sigue siendo viable 
+      notaInformativa = true;
+      motivos.innerHTML += `<li>La ruta se opera en horario pico, pero el número de paradas es bajo y no representa un riesgo significativo.</li>`;
+    } else {
+      alertas += config.pesoHorarioPico;
+      motivos.innerHTML += `<li>Horario pico combinado con varias paradas puede generar retrasos.</li>`;
+    }
+  }
+
+  if (alertas === 0 && !notaInformativa) {
+    estado.textContent = "Ruta óptima";
     resultado.classList.add("ok");
+  } else if (alertas === 0 && notaInformativa) {
+    estado.textContent = "Ruta viable con monitoreo";
+    resultado.classList.add("neutral");
   } else if (alertas <= 2) {
-    estado.textContent = "⚠️ Ruta viable con ajustes";
+    estado.textContent = "Ruta viable, pero requiere ajustes";
     resultado.classList.add("warning");
   } else {
-    estado.textContent = "❌ Ruta con alto riesgo operativo";
+    estado.textContent = "Ruta no recomendada en su forma actual";
     resultado.classList.add("danger");
   }
 }
