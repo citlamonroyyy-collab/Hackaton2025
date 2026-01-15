@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Checklist de Validación de Rutas</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <div class="container">
+    <h1>Checklist de Validación de Ruta</h1>
+
+    <label for="duracion">Duración estimada (minutos)</label>
+    <input type="number" id="duracion">
+
+    <label for="paradas">Número de paradas</label>
+    <input type="number" id="paradas">
+
+    <label for="horario">Horario</label>
+    <select id="horario">
+      <option value="normal">Normal</option>
+      <option value="pico">Hora pico</option>
+    </select>
+
+    <label for="cliente">Tipo de cliente</label>
+    <select id="cliente">
+      <option value="corporativo">Corporativo</option>
+      <option value="escolar">Escolar</option>
+      <option value="turistico">Turístico</option>
+    </select>
+
+    <button id="validarBtn">Validar ruta</button>
+
+    <div id="resultado" class="resultado">
+      <strong id="estado"></strong>
+      <ul id="motivos"></ul>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
